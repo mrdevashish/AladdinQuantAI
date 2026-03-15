@@ -9,15 +9,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix Git safe directory
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk
+
+      - name: Install Python tools
+        run: |
+          pip3 install --upgrade pip
+          pip3 install buildozer cython
+
+      - name: Create buildozer spec if missing
+        run: |
+          if [ ! -f buildozer.spec ]; then
+            buildozer init
+          fi
 
       - name: Build APK
-        uses: ArtemSBulgakov/buildozer-action@v1
-        with:
-          command: buildozer android debug
+        run: |
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: apk
+          name: aladdinquantai-apk
           path: bin/*.apk

@@ -6,29 +6,47 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Fix Git safe directory
+      - name: Configure Git safe directory
         run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
+          git config --global --add safe.directory '*'
 
-      - name: Install dependencies
+      - name: Show repository info
+        run: |
+          git status
+          git rev-parse HEAD
+
+      - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk
+          sudo apt install -y \
+            python3 \
+            python3-pip \
+            build-essential \
+            git \
+            zip \
+            unzip \
+            openjdk-17-jdk
 
-      - name: Install Python tools
+      - name: Upgrade pip
         run: |
-          pip3 install --upgrade pip
-          pip3 install buildozer cython
+          python3 -m pip install --upgrade pip
 
-      - name: Create buildozer spec if missing
+      - name: Install Buildozer
+        run: |
+          pip3 install cython buildozer
+
+      - name: Initialize buildozer
         run: |
           if [ ! -f buildozer.spec ]; then
             buildozer init

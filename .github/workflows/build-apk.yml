@@ -14,33 +14,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install system packages
+      - name: Install system dependencies
         run: |
           sudo apt update
           sudo apt install -y python3 python3-pip git zip unzip openjdk-17-jdk
 
-      - name: Install Python tools
+      - name: Install Python build tools
         run: |
           pip3 install buildozer cython
 
-      - name: Install Android SDK
+      - name: Pre-install Android SDK for Buildozer
         run: |
-          mkdir -p $HOME/android-sdk
-          cd $HOME
+          mkdir -p $HOME/.buildozer/android/platform
+          cd $HOME/.buildozer/android/platform
+
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip commandlinetools-linux-*.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
 
-      - name: Setup Android SDK environment
-        run: |
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+          mkdir -p android-sdk/cmdline-tools
+          mv cmdline-tools android-sdk/cmdline-tools/latest
 
-      - name: Install Android packages
-        run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+
           yes | sdkmanager --licenses
           sdkmanager "platform-tools"
           sdkmanager "platforms;android-33"

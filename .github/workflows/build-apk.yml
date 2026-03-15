@@ -2,7 +2,8 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -16,48 +17,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure Git safe directory
-        run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          git config --global --add safe.directory '*'
-
-      - name: Show repository info
-        run: |
-          git status
-          git rev-parse HEAD
-
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y \
-            python3 \
-            python3-pip \
-            build-essential \
-            git \
-            zip \
-            unzip \
-            openjdk-17-jdk
+          sudo apt install -y python3 python3-pip git zip unzip openjdk-17-jdk
 
-      - name: Upgrade pip
+      - name: Install build tools
         run: |
-          python3 -m pip install --upgrade pip
-
-      - name: Install Buildozer
-        run: |
-          pip3 install cython buildozer
-
-      - name: Initialize buildozer
-        run: |
-          if [ ! -f buildozer.spec ]; then
-            buildozer init
-          fi
+          pip3 install buildozer cython
 
       - name: Build APK
         run: |
           buildozer android debug
-
+          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: aladdinquantai-apk
+          name: apk
           path: bin/*.apk

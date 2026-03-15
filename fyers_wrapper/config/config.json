@@ -1,0 +1,6 @@
+{
+  "client_id": "HBWGJ95UYO-100",
+  "secret_key": "223H5NKOQ6",
+  "redirect_uri": "https://trade.fyers.in/api-login/redirect-uri/index.html",
+  "token_file": "fyers_wrapper/config/access_token.json"
+}

@@ -1,0 +1,7 @@
+{"level":"ERROR","location":"[__symbol_conversion:1352] data_ws","message":{"code":-300,"message":"Please provide a valid symbol","s":"error","type":"sub","invalid_symbols":["NSE:BANKNIFTY-INDEX"]},"timestamp":"2026-03-16 00:30:56,095+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[SSL: BAD_LENGTH] bad length (_ssl.c:2501)","timestamp":"2026-03-16 02:26:51,067+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[SSL: BAD_LENGTH] bad length (_ssl.c:2501)","timestamp":"2026-03-16 02:26:51,071+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[SSL: BAD_LENGTH] bad length (_ssl.c:2501)","timestamp":"2026-03-16 02:26:51,079+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[SSL: BAD_LENGTH] bad length (_ssl.c:2501)","timestamp":"2026-03-16 02:26:51,077+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[SSL: BAD_LENGTH] bad length (_ssl.c:2501)","timestamp":"2026-03-16 02:26:51,062+0530","service":"FyersDataSocket"}
+{"level":"ERROR","location":"[<lambda>:1663] data_ws","message":"[SSL: BAD_LENGTH] bad length (_ssl.c:2501)","timestamp":"2026-03-16 02:26:51,073+0530","service":"FyersDataSocket"}

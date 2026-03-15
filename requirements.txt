@@ -1,0 +1,5 @@
+fyers-apiv3
+websockets
+requests
+python-dotenv
+pandas

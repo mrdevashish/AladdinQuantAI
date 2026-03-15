@@ -5,9 +5,11 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -15,25 +17,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3 python3-pip git zip unzip openjdk-17-jdk
+          sudo apt install -y \
+            python3 python3-pip \
+            git zip unzip \
+            openjdk-17-jdk
 
       - name: Install Buildozer
         run: |
           pip3 install buildozer cython
 
-      - name: Accept Android licenses
+      - name: Accept Android SDK licenses
         run: |
+          mkdir -p $HOME/.android
+          touch $HOME/.android/repositories.cfg
           yes | buildozer android accept_sdk_license || true
 
       - name: Build APK
         run: |
-          buildozer android debug
+          buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: apk
+          name: aladdin-apk
           path: bin/*.apk

@@ -1,5 +1,4 @@
-fyers-apiv3
-websockets
+kivy
+numpy
 requests
-python-dotenv
-pandas
+websocket-client

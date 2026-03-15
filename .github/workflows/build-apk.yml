@@ -17,16 +17,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure Git
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-
-      - name: Install dependencies
+      - name: Install system packages
         run: |
           sudo apt update
           sudo apt install -y python3 python3-pip git zip unzip openjdk-17-jdk
@@ -34,6 +26,10 @@ jobs:
       - name: Install build tools
         run: |
           pip3 install buildozer cython
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | sdkmanager --licenses || true
 
       - name: Build APK
         run: |

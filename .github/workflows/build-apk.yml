@@ -45,8 +45,6 @@ jobs:
       - name: Install Android SDK
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
-
-          mkdir -p $ANDROID_HOME
           mkdir -p $ANDROID_HOME/cmdline-tools
           mkdir -p $ANDROID_HOME/tools/bin
 
@@ -57,11 +55,9 @@ jobs:
 
           mv cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-          # ADD sdkmanager to PATH
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          ln -s $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
 
-          # FIX for Buildozer expecting old location
-          cp $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
 
       - name: Install Android build tools
@@ -76,9 +72,17 @@ jobs:
           sdkmanager "build-tools;33.0.2"
 
 
+      # 🔧 FIX: Tell buildozer where SDK is
+      - name: Configure Android environment
+        run: |
+          echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+          echo "ANDROIDSDK=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk-r25b" >> $GITHUB_ENV
+
+
       - name: Build APK
         run: |
-          buildozer -v android debug
+          buildozer -v android debug log_level=2
 
 
       - name: Upload APK

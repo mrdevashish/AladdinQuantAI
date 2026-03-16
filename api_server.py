@@ -1,63 +1,40 @@
 import json
-import random
 import threading
-import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+from market_engine import MarketEngine
+from strategy_engine import StrategyEngine
+from backtest_engine import BacktestEngine
 
-# -------------------------------
-# GLOBAL MARKET STATE
-# -------------------------------
+market = MarketEngine()
+strategy = StrategyEngine()
+backtest = BacktestEngine()
 
-market_state = {
-    "price": 0,
-    "gamma": "NONE",
-    "liquidity": "NONE",
-    "signal": "HOLD"
+state = {
+    "price":0,
+    "gamma":"LOW",
+    "liquidity":"NONE",
+    "signal":"HOLD"
 }
 
 
-# -------------------------------
-# SIMPLE AI ENGINE LOOP
-# -------------------------------
-
-def ai_loop():
+def market_loop():
 
     while True:
 
-        try:
+        market.update_price()
+        market.gamma_engine()
+        market.liquidity_engine()
 
-            # temporary signals
-            market_state["price"] = random.randint(23000,24000)
+        state["price"] = market.price
+        state["gamma"] = market.gamma
+        state["liquidity"] = market.liquidity
 
-            market_state["gamma"] = random.choice(
-                ["HIGH","LOW"]
-            )
+        state["signal"] = strategy.generate_signal(
+            market.gamma,
+            market.liquidity
+        )
 
-            market_state["liquidity"] = random.choice(
-                ["BUY","SELL"]
-            )
-
-            if market_state["gamma"] == "HIGH" and market_state["liquidity"] == "BUY":
-                market_state["signal"] = "BUY"
-
-            elif market_state["gamma"] == "HIGH" and market_state["liquidity"] == "SELL":
-                market_state["signal"] = "SELL"
-
-            else:
-                market_state["signal"] = "HOLD"
-
-            time.sleep(2)
-
-        except Exception as e:
-
-            print("AI error:", e)
-            time.sleep(5)
-
-
-# -------------------------------
-# API SERVER
-# -------------------------------
 
 class Handler(BaseHTTPRequestHandler):
 
@@ -69,28 +46,31 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-type","application/json")
             self.end_headers()
 
-            self.wfile.write(
-                json.dumps(market_state).encode()
-            )
+            self.wfile.write(json.dumps(state).encode())
+
+        elif self.path == "/backtest":
+
+            result = backtest.run_backtest()
+
+            self.send_response(200)
+            self.send_header("Content-type","application/json")
+            self.end_headers()
+
+            self.wfile.write(json.dumps(result).encode())
 
 
-# -------------------------------
-# SERVER START
-# -------------------------------
+def run():
 
-def run_server():
+    thread = threading.Thread(target=market_loop)
+    thread.daemon = True
+    thread.start()
 
-    server = HTTPServer(("0.0.0.0",9001), Handler)
+    server = HTTPServer(("0.0.0.0",9500),Handler)
 
-    print("AI trading server running on port 9001")
+    print("AI trading server running on port 9500")
 
     server.serve_forever()
 
 
 if __name__ == "__main__":
-
-    thread = threading.Thread(target=ai_loop)
-    thread.daemon = True
-    thread.start()
-
-    run_server()
+    run()

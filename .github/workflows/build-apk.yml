@@ -1,4 +1,4 @@
-name: Build APK
+name: Build Android APK
 
 on:
   push:
@@ -9,64 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-
-      - name: Install system packages
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            python3 \
-            python3-pip \
-            git \
-            zip \
-            unzip \
-            openjdk-17-jdk \
-            build-essential \
-            libffi-dev \
-            libssl-dev \
-            zlib1g-dev \
-            cmake
-
-      - name: Install python-for-android
-        run: |
-          pip install python-for-android
-
-      - name: Install Android SDK
-        run: |
-          mkdir -p $HOME/android-sdk
-          cd $HOME
-
-          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip commandlinetools-linux-*.zip
-
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-      - name: Install Android packages
-        run: |
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-33"
-          sdkmanager "build-tools;33.0.2"
-
-      - name: Build APK
-        run: |
-          p4a apk \
-            --private . \
-            --package org.aladdin.quant \
-            --name AladdinQuantAI \
-            --version 0.1 \
-            --bootstrap=sdl2 \
-            --requirements=python3 \
-            --arch=arm64-v8a
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Build APK with Buildozer
+        uses: buildozer/buildozer-action@v1
         with:
-          name: AladdinQuantAI-APK
-          path: dist/*.apk
+          command: buildozer android debug

@@ -4,8 +4,7 @@ from kivy.uix.label import Label
 from kivy.clock import Clock
 import requests
 
-
-SERVER_URL = "http://127.0.0.1:9001/signals"
+SERVER = "http://127.0.0.1:9500/signals"
 
 
 class Dashboard(BoxLayout):
@@ -14,43 +13,40 @@ class Dashboard(BoxLayout):
 
         super().__init__(orientation="vertical", **kwargs)
 
-        self.title = Label(text="AladdinQuantAI")
-        self.price = Label(text="Price loading...")
-        self.gamma = Label(text="Gamma loading...")
-        self.liquidity = Label(text="Liquidity loading...")
-        self.signal = Label(text="Signal loading...")
+        self.price = Label(text="Price")
+        self.gamma = Label(text="Gamma")
+        self.liquidity = Label(text="Liquidity")
+        self.signal = Label(text="Signal")
 
-        self.add_widget(self.title)
         self.add_widget(self.price)
         self.add_widget(self.gamma)
         self.add_widget(self.liquidity)
         self.add_widget(self.signal)
 
-        Clock.schedule_interval(self.update_data,2)
+        Clock.schedule_interval(self.update,2)
 
-    def update_data(self,dt):
+    def update(self,dt):
 
         try:
 
-            r = requests.get(SERVER_URL)
+            r = requests.get(SERVER)
             data = r.json()
 
             self.price.text = "Price: " + str(data["price"])
             self.gamma.text = "Gamma: " + data["gamma"]
             self.liquidity.text = "Liquidity: " + data["liquidity"]
-            self.signal.text = "AI Signal: " + data["signal"]
+            self.signal.text = "Signal: " + data["signal"]
 
         except:
 
-            self.price.text = "Server not running"
+            self.price.text = "Server offline"
 
 
-class AladdinApp(App):
+class AppMain(App):
 
     def build(self):
 
         return Dashboard()
 
 
-if __name__ == "__main__":
-    AladdinApp().run()
+AppMain().run()

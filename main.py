@@ -5,7 +5,7 @@ from kivy.clock import Clock
 import requests
 
 
-SERVER_URL = "http://127.0.0.1:8000/signals"
+SERVER_URL = "http://127.0.0.1:9001/signals"
 
 
 class Dashboard(BoxLayout):

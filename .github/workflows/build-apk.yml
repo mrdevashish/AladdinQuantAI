@@ -55,7 +55,7 @@ jobs:
             ccache
 
 
-      - name: Cache Buildozer global directory
+      - name: Cache Buildozer directory
         uses: actions/cache@v4
         with:
           path: ~/.buildozer
@@ -64,19 +64,22 @@ jobs:
             buildozer-${{ runner.os }}-
 
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
-
-
-      - name: Install Buildozer and Cython
+      - name: Install Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer cython
+
+
+      # FIX: ensure Android build tools (AIDL) exist
+      - name: Install Android SDK build tools
+        run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+
+          yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+            "build-tools;33.0.2" \
+            "platforms;android-33" \
+            "platform-tools" || true
 
 
       - name: Build APK

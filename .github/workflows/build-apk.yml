@@ -70,9 +70,36 @@ jobs:
             buildozer-${{ runner.os }}-
 
 
+      - name: Setup Android SDK manually
+        run: |
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
+          cd /tmp
+
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+
+          mv cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+
+          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+
+          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
+
+          sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
+            "platform-tools" \
+            "platforms;android-31" \
+            "build-tools;33.0.2"
+
+
       - name: Build APK
         run: |
           buildozer -v android debug
+        env:
+          ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
+          ANDROIDSDK: /home/runner/.buildozer/android/platform/android-sdk
 
 
       - name: Upload APK artifact

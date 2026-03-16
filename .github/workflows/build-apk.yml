@@ -30,31 +30,23 @@ jobs:
             libffi-dev \
             libssl-dev \
             zlib1g-dev \
-            cmake \
-            wget
+            cmake
 
       - name: Install Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer cython
 
-      - name: Install Android SDK
+      - name: Initialize buildozer environment
         run: |
-          mkdir -p $HOME/android-sdk
-          cd $HOME
+          buildozer init || true
+          buildozer android debug deploy run || true
 
-          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip commandlinetools-linux-*.zip
-
-          mkdir -p android-sdk/cmdline-tools
-          mv cmdline-tools android-sdk/cmdline-tools/latest
-
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-      - name: Install Android packages
+      - name: Install build-tools into buildozer SDK
         run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+
           yes | sdkmanager --licenses
           sdkmanager "platform-tools"
           sdkmanager "platforms;android-33"

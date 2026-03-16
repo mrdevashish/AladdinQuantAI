@@ -80,7 +80,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def run():
 
-    server = HTTPServer(("0.0.0.0",8000),Handler)
+    server = HTTPServer(("0.0.0.0",9000),Handler)
     print("AI trading server running")
     server.serve_forever()
 

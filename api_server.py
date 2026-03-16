@@ -1,20 +1,13 @@
 import json
+import random
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-# ----------------------------------
-# IMPORT YOUR EXISTING ENGINES
-# ----------------------------------
 
-from engines.gamma.gamma_trap import GammaTrapEngine
-from engines.liquidity.liquidity_engine import LiquidityEngine
-from engines.strategy.ai_strategy import AIStrategy
-
-
-# ----------------------------------
-# GLOBAL STATE
-# ----------------------------------
+# -------------------------------
+# GLOBAL MARKET STATE
+# -------------------------------
 
 market_state = {
     "price": 0,
@@ -24,47 +17,47 @@ market_state = {
 }
 
 
-# ----------------------------------
-# AI PIPELINE
-# ----------------------------------
+# -------------------------------
+# SIMPLE AI ENGINE LOOP
+# -------------------------------
 
-class TradingPipeline:
+def ai_loop():
 
-    def __init__(self):
+    while True:
 
-        self.gamma_engine = GammaTrapEngine()
-        self.liquidity_engine = LiquidityEngine()
-        self.strategy_engine = AIStrategy()
+        try:
 
-    def run(self):
+            # temporary signals
+            market_state["price"] = random.randint(23000,24000)
 
-        while True:
+            market_state["gamma"] = random.choice(
+                ["HIGH","LOW"]
+            )
 
-            try:
+            market_state["liquidity"] = random.choice(
+                ["BUY","SELL"]
+            )
 
-                gamma = self.gamma_engine.detect()
-                liquidity = self.liquidity_engine.detect()
+            if market_state["gamma"] == "HIGH" and market_state["liquidity"] == "BUY":
+                market_state["signal"] = "BUY"
 
-                signal = self.strategy_engine.generate(
-                    gamma,
-                    liquidity
-                )
+            elif market_state["gamma"] == "HIGH" and market_state["liquidity"] == "SELL":
+                market_state["signal"] = "SELL"
 
-                market_state["gamma"] = gamma
-                market_state["liquidity"] = liquidity
-                market_state["signal"] = signal
+            else:
+                market_state["signal"] = "HOLD"
 
-                time.sleep(2)
+            time.sleep(2)
 
-            except Exception as e:
+        except Exception as e:
 
-                print("Engine error:", e)
-                time.sleep(5)
+            print("AI error:", e)
+            time.sleep(5)
 
 
-# ----------------------------------
+# -------------------------------
 # API SERVER
-# ----------------------------------
+# -------------------------------
 
 class Handler(BaseHTTPRequestHandler):
 
@@ -81,26 +74,22 @@ class Handler(BaseHTTPRequestHandler):
             )
 
 
-# ----------------------------------
-# START SERVER
-# ----------------------------------
+# -------------------------------
+# SERVER START
+# -------------------------------
 
 def run_server():
 
     server = HTTPServer(("0.0.0.0",9001), Handler)
+
     print("AI trading server running on port 9001")
+
     server.serve_forever()
-
-
-def start_pipeline():
-
-    pipeline = TradingPipeline()
-    pipeline.run()
 
 
 if __name__ == "__main__":
 
-    thread = threading.Thread(target=start_pipeline)
+    thread = threading.Thread(target=ai_loop)
     thread.daemon = True
     thread.start()
 

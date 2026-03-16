@@ -3,6 +3,8 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -53,31 +55,19 @@ jobs:
             ccache
 
 
-      - name: Install Buildozer
+      - name: Install Buildozer and Cython
         run: |
           pip install --upgrade pip
           pip install buildozer cython
 
 
-      # First run to let buildozer create SDK folders
-      - name: Bootstrap Buildozer
-        run: |
-          buildozer android clean || true
-
-
-      # Install Android build tools (AIDL fix)
-      - name: Install Android build-tools
-        run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-
-          SDK=~/.buildozer/android/platform/android-sdk
-          CMD=$SDK/cmdline-tools/latest/bin/sdkmanager
-
-          yes | $CMD --licenses || true
-          $CMD "platform-tools"
-          $CMD "platforms;android-31"
-          $CMD "build-tools;33.0.2"
+      - name: Cache Buildozer directory
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
 
 
       - name: Build APK
@@ -85,8 +75,9 @@ jobs:
           buildozer -v android debug
 
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: bin/*.apk
+          if-no-files-found: error
